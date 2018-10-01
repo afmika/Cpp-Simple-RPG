@@ -1,0 +1,85 @@
+<canvas id="canvas" width="1600" height="1600">
+</canvas>
+<button onclick="getTableau()">Generer</button>
+<p id="log0"></p>
+<p id="log"></p>
+<script>
+/**
+  * Dev. par afmika v1 2018
+  **/
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	var img = new Image();
+	img.src = "map.png";
+	var dimX = 16;
+	var dimY = 16;
+	var tabPos = [];
+	function dessiner() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.drawImage(img, 0, 0);
+		for(var i=0; i < canvas.height / dimY; i++) {
+			for(var j=0; j < canvas.width / dimX; j++) {
+				ctx.strokeWidth = 0.1;
+				ctx.strokeStyle = "grey";
+				ctx.strokeRect(i*dimX, j*dimY, dimX, dimY);
+			}
+		}
+	}
+	dessiner();
+	canvas.addEventListener("mousemove", function(e) {
+		var x = e.clientX-canvas.offsetLeft;
+		var y = e.clientY-canvas.offsetTop;
+		document.getElementById("log").innerHTML = "Souris "+x + ", " + y + "<br>";
+		document.getElementById("log").innerHTML += "Matrice "+ Math.floor(x/dimX) + ", " + Math.floor(y/dimY) + "<br>";
+	});
+	function removeSiExistant(x, y) {
+		var removeEffect = false;
+		var newnew = [];
+		for(var k=0; k < tabPos.length; k++) {
+			if(!(tabPos[k].x == x && tabPos[k].y == y)) {
+				newnew.push(tabPos[k]);
+			} else {
+				removeEffect = true;
+			}
+		}
+		tabPos = newnew;
+		return removeEffect;
+	}
+	canvas.addEventListener("click", function(e) {
+		var x = e.clientX-canvas.offsetLeft;
+		var y = e.clientY-canvas.offsetTop;
+		x = Math.floor(x/dimX);
+		y = Math.floor(y/dimY);
+		if(!removeSiExistant(x, y)) {
+			tabPos.push({x :x, y :y});
+		} else {
+			dessiner();
+		}
+		document.getElementById("log0").innerHTML = "Collision sur "+ x+ ", " + y+ "<br>";
+	});
+	function dessinerCarre() {
+		for(var k=0; k < tabPos.length; k++) {
+			ctx.fillStyle = "red";
+			ctx.fillRect(tabPos[k].x*dimX, tabPos[k].y*dimY, dimX, dimY);
+		}	
+	}
+	setInterval(function() {dessinerCarre()}, 1000/10);
+	function getTableau() {
+		var str = "";
+		for(var i=0; i < canvas.height / dimY; i++) {
+				for(var j=0; j < canvas.width / dimX; j++) {
+				var trouve = false;
+					for(var k=0; k < tabPos.length; k++) {
+						if(j == tabPos[k].x && i == tabPos[k].y) {
+							trouve = true;
+							break;
+						}
+					}
+					if(!trouve) str += " 0 ";
+					else str += " 1 ";
+				}
+				str += "<br>";
+			}
+		document.getElementById("log0").innerHTML = str;
+	}
+</script>
